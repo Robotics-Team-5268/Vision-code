@@ -19,7 +19,7 @@ void GripPipeline::process(cv::Mat source0){
 	cv::Mat hsvThresholdInput = source0;
 	double hsvThresholdHue[] = {0.0, 100.13651877133107};
 	double hsvThresholdSaturation[] = {0.0, 20.017064846416375};
-	double hsvThresholdValue[] = {249.955035971223, 255.0};
+	double hsvThresholdValue[] = {200.955035971223, 255.0};
 	std::cout << "  Calling hsvThreshold" << std::endl;
 	hsvThreshold(hsvThresholdInput, hsvThresholdHue, hsvThresholdSaturation, hsvThresholdValue, this->hsvThresholdOutput);
 	//Step Find_Contours0:
@@ -131,7 +131,7 @@ std::vector<std::vector<cv::Point> >* GripPipeline::getfilterContoursOutput(){
 		output.clear();
 		std::cout << "Output cleared" << std::endl;
 		for (std::vector<cv::Point> contour: inputContours) {
-			/*std::cout << i++ << std::endl;
+			std::cout << i++ << std::endl;
 			cv::Rect bb = boundingRect(contour);
 			std::cout << i++ << std::endl;
 			if (bb.width < minWidth || bb.width > maxWidth) continue;
@@ -155,7 +155,7 @@ std::vector<std::vector<cv::Point> >* GripPipeline::getfilterContoursOutput(){
 			double ratio = bb.width / bb.height;
 			std::cout << i++ << std::endl;
 			if (ratio < minRatio || ratio > maxRatio) continue;
-			std::cout << i++ << std::endl;*/
+			std::cout << i++ << std::endl;
 			output.push_back(contour);
 			std::cout << "Pushed back" << std::endl;
 		}
