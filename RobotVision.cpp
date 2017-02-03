@@ -13,6 +13,8 @@
 //#define debug
 #define noCam
 
+typedef std::vector<cv::Point> shape;
+
 grip::GripPipeline* RobotVision::cam = nullptr;
 
 void RobotVision::VisionThread() {
@@ -33,11 +35,11 @@ void RobotVision::VisionThread() {
         return;
     cv::Mat* frame = new cv::Mat();
 #else
-    cv::Mat frameData = cv::imread ("output/output_2.png");
+    cv::Mat frameData = cv::imread ("../output/output_3.png");
     cv::Mat* frame = &frameData;
 #endif
 
-    std::vector<std::vector<cv::Point> >* findContoursOutput = new std::vector<std::vector<cv::Point> >();
+    std::vector<shape>* filterContoursOutput = new std::vector<shape>();
     for(int camCount=0;;camCount++){
 #ifndef noCam
         cap >> *frame;
@@ -45,23 +47,21 @@ void RobotVision::VisionThread() {
 #endif
 		//cam->setsource0(frame);
         cam->process(*frame);
-        findContoursOutput = cam->getfilterContoursOutput();
-        for(std::vector<cv::Point> shape : *findContoursOutput){
-            cv::polylines (*frame, *findContoursOutput, true, cv::Scalar(0xFF,0xFF,0xFF));
-        }
+        filterContoursOutput = cam->getfilterContoursOutput();
+        cv::polylines (*frame, *filterContoursOutput, true, cv::Scalar(0xFF,0xFF,0xFF));
 #ifdef debug
         std::stringstream outputStream, filterSteam;
-        outputStream << "output/output_" << camCount << ".png";
-        filterSteam << "output/filter_" << camCount << ".png";
+        outputStream << "../output/output_" << camCount << ".png";
+        filterSteam << "../output/filter_" << camCount << ".png";
         imwrite(outputStream.str(), *frame);
 #else
         imshow("output", *frame);
         if( cv::waitKey(10) == 27 ) break; // stop capturing by pressing ESC 
 #endif
         std::stringstream numberOfContours;
-        numberOfContours << cam->getfilterContoursOutput()->size();
+        numberOfContours << filterContoursOutput->size();
         myTable->PutString("NumberOfContours", numberOfContours.str());
-        std::cout << "findContours found: " << cam->getfindContoursOutput()->size() << " Contours found: " << cam->getfilterContoursOutput()->size() << std::endl;
+        std::cout << "findContours found: " << cam->getfindContoursOutput()->size() << " Contours found: " << filterContoursOutput->size() << std::endl;
     }
     // the camera will be closed automatically upon exit
     // cap.close();
