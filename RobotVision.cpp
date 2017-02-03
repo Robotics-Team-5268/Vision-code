@@ -1,8 +1,13 @@
 #include "RobotVision.hpp"
 #include <sstream>
 
+#include <ntcore.h>
+#include <networktables/NetworkTable.h>
+
 #define xres 720
 #define yres 480
+
+#define hostname "10.7.181.32"
 
 //#define debug
 
@@ -15,6 +20,11 @@ void RobotVision::VisionThread() {
     cap.set(cv::CAP_PROP_FRAME_HEIGHT, yres);
     // open the default camera, use something different from 0 otherwise;
     // Check VideoCapture documentation.
+    NetworkTable::SetClientMode();
+    NetworkTable::SetIPAddress(hostname);
+    NetworkTable::Initialize();
+    std::shared_ptr<NetworkTable> myTable = NetworkTable::GetTable("SmartDashboard");
+    myTable->PutString("ExampleString", "Sample Text");
     if(!cap.open(0))
         return;
     cv::Mat* frame = new cv::Mat();
