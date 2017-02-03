@@ -4,7 +4,7 @@
 #define xres 720
 #define yres 480
 
-#define debug
+//#define debug
 
 grip::GripPipeline* RobotVision::cam = nullptr;
 
