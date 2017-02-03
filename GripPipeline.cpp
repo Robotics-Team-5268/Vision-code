@@ -3,6 +3,19 @@
 * Initializes a GripPipeline.
 */
 
+//#define gripDebug
+
+#ifdef gripDebug
+
+#define log(log) std::cout << log << std::endl
+
+#else
+
+#define log(log)
+
+#endif
+
+
 namespace grip {
 
 GripPipeline::GripPipeline() {
@@ -20,13 +33,13 @@ void GripPipeline::process(cv::Mat source0){
 	double hsvThresholdHue[] = {59.89208633093524, 100.13651877133107};
 	double hsvThresholdSaturation[] = {174.28057553956833, 255.0};
 	double hsvThresholdValue[] = {210, 255.0};
-	std::cout << "  Calling hsvThreshold" << std::endl;
+	log("  Calling hsvThreshold");
 	hsvThreshold(hsvThresholdInput, hsvThresholdHue, hsvThresholdSaturation, hsvThresholdValue, this->hsvThresholdOutput);
 	//Step Find_Contours0:
 	//input
 	cv::Mat findContoursInput = hsvThresholdOutput;
 	bool findContoursExternalOnly = false;  // default Boolean
-	std::cout << "  Calling findContours" << std::endl;
+	log("  Calling findContours");
 	findContours(findContoursInput, findContoursExternalOnly, this->findContoursOutput);
 	//Step Filter_Contours0:
 	//input
@@ -42,7 +55,7 @@ void GripPipeline::process(cv::Mat source0){
 	double filterContoursMinVertices = 0.0;  // default Double
 	double filterContoursMinRatio = 0.0;  // default Double
 	double filterContoursMaxRatio = 1000.0;  // default Double
-	std::cout << "  Calling filterContours" << std::endl;
+	log("  Calling filterContours");
 	filterContours(filterContoursContours, filterContoursMinArea, filterContoursMinPerimeter, filterContoursMinWidth, filterContoursMaxWidth, filterContoursMinHeight, filterContoursMaxHeight, filterContoursSolidity, filterContoursMaxVertices, filterContoursMinVertices, filterContoursMinRatio, filterContoursMaxRatio, this->filterContoursOutput);
 }
 
@@ -84,11 +97,11 @@ std::vector<std::vector<cv::Point> >* GripPipeline::getfilterContoursOutput(){
 	 * @param output The image in which to store the output.
 	 */
 	void GripPipeline::hsvThreshold(cv::Mat &input, double hue[], double sat[], double val[], cv::Mat &out) {
-		std::cout << "    hsvThreshold" << std::endl;
+		log("    hsvThreshold");
 		cv::cvtColor(input, out, cv::COLOR_BGR2HSV);
-		std::cout << "      cvtColor" << std::endl;
+		log("      cvtColor");
 		cv::inRange(out,cv::Scalar(hue[0], sat[0], val[0]), cv::Scalar(hue[1], sat[1], val[1]), out);
-		std::cout << "      Scalar" << std::endl;
+		log("      Scalar");
 	}
 
 	/**
@@ -99,13 +112,13 @@ std::vector<std::vector<cv::Point> >* GripPipeline::getfilterContoursOutput(){
 	 * @param contours vector of contours to put contours in.
 	 */
 	void GripPipeline::findContours(cv::Mat &input, bool externalOnly, std::vector<std::vector<cv::Point> > &contours) {
-		std::cout << "    findContours" << std::endl;
+		log("    findContours");
 		std::vector<cv::Vec4i> hierarchy;
 		contours.clear();
 		int mode = externalOnly ? cv::RETR_EXTERNAL : cv::RETR_LIST;
 		int method = cv::CHAIN_APPROX_SIMPLE;
 		cv::findContours(input, contours, hierarchy, mode, method);
-		std::cout << "      findContours" << std::endl;
+		log("      findContours");
 	}
 
 
@@ -129,35 +142,35 @@ std::vector<std::vector<cv::Point> >* GripPipeline::getfilterContoursOutput(){
 		int i = 0;
 		std::vector<cv::Point> hull;
 		output.clear();
-		std::cout << "Output cleared" << std::endl;
+		log("Output cleared");
 		for (std::vector<cv::Point> contour: inputContours) {
-			std::cout << i++ << std::endl;
+			log(i++);
 			cv::Rect bb = boundingRect(contour);
-			std::cout << i++ << std::endl;
+			log(i++);
 			if (bb.width < minWidth || bb.width > maxWidth) continue;
-			std::cout << i++ << std::endl;
+			log(i++);
 			if (bb.height < minHeight || bb.height > maxHeight) continue;
-			std::cout << i++ << std::endl;
+			log(i++);
 			double area = cv::contourArea(contour);
-			std::cout << i++ << std::endl;
+			log(i++);
 			if (area < minArea) continue;
-			std::cout << i++ << std::endl;
+			log(i++);
 			if (arcLength(contour, true) < minPerimeter) continue;
-			std::cout << i++ << std::endl;
+			log(i++);
 			cv::convexHull(cv::Mat(contour, true), hull);
-			std::cout << i++ << std::endl;
+			log(i++);
 			double solid = 100 * area / cv::contourArea(hull);
-			std::cout << i++ << std::endl;
+			log(i++);
 			if (solid < solidity[0] || solid > solidity[1]) continue;
-			std::cout << i++ << std::endl;
+			log(i++);
 			if (contour.size() < minVertexCount || contour.size() > maxVertexCount)	continue;
-			std::cout << i++ << std::endl;
+			log(i++);
 			double ratio = bb.width / bb.height;
-			std::cout << i++ << std::endl;
+			log(i++);
 			if (ratio < minRatio || ratio > maxRatio) continue;
-			std::cout << i++ << std::endl;
+			log(i++);
 			output.push_back(contour);
-			std::cout << "Pushed back" << std::endl;
+			log("Pushed back");
 		}
 	}
 
