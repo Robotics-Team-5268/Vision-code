@@ -30,7 +30,7 @@ void RobotVision::VisionThread(){
 	NetworkTable::GlobalDeleteAll();
 	contours = NetworkTable::GetTable("Contours");
 #ifndef noCam
-	if(!cap.open(1))
+	if(!cap.open(0))
 		return;
 	cv::Mat *frame = new cv::Mat();
 #else
