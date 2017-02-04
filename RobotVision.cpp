@@ -11,7 +11,7 @@
 #define hostname "10.0.0.99"
 
 //#define debug
-#define noCam
+//#define noCam
 
 typedef std::vector<cv::Point> shape;
 
