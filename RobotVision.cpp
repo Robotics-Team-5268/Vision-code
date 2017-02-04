@@ -8,10 +8,10 @@
 #define hostname "roboRIO-5268-FRC.local"
 
 //#define debug
-//#define noCam
 
 #ifdef debug
-#define saveImages
+//#define noCam
+//#define saveImages
 #endif
 
 grip::GripPipeline *RobotVision::cam = nullptr;
@@ -28,7 +28,7 @@ void RobotVision::VisionThread(){
 	NetworkTable::SetIPAddress(hostname);
 	NetworkTable::Initialize();
 	NetworkTable::GlobalDeleteAll();
-	contours = NetworkTable::GetTable("Contours");
+	contours = NetworkTable::GetTable("roboRIO-5268-frc.local");
 #ifndef noCam
 	if(!cap.open(0))
 		return;
@@ -48,7 +48,8 @@ void RobotVision::VisionThread(){
 		cam->process(*frame);
 		filterContoursOutput = cam->getfilterContoursOutput();
 		cv::polylines(*frame, *filterContoursOutput, true, cv::Scalar(0xFF, 0xFF, 0xFF, 0x7F));
-		drawCenters(*frame, *filterContoursOutput);
+		drawHWC(*frame, *filterContoursOutput);
+		drawArea(*frame, *filterContoursOutput);
 #ifdef saveImages
 		std::stringstream outputStream, filterSteam;
 		outputStream << "../output/output_" << camCount << ".png";
@@ -58,9 +59,6 @@ void RobotVision::VisionThread(){
 #ifdef debug
 		imshow("output", *frame);
 		if(cv::waitKey(10) == 27) break; // stop capturing by pressing ESC
-#endif
-		contours->PutNumber("NumberOfContours", filterContoursOutput->size());
-#ifdef debug
 		std::cout << "findContours found: " << cam->getfindContoursOutput()->size() << " Contours found: "
 		          << filterContoursOutput->size() << std::endl;
 #endif
@@ -79,27 +77,41 @@ void RobotVision::cameraInit(){
 	VisionThread();
 }
 
-void RobotVision::drawCenters(cv::Mat &frame, std::vector<shape> &filterContoursOutput){
-	if(!filterContoursOutput.size()) return; // if empty do nothing
-
-	int runtimes = 0;
+void RobotVision::drawHWC(cv::Mat &frame, std::vector<shape> &filterContoursOutput){
+	std::vector<double> height;
+	std::vector<double> width;
+	std::vector<double> centerX;
+	std::vector<double> centerY;
 	for(shape shapes : filterContoursOutput){
-		cv::Point center;
-		std::stringstream output;
-		int numOfPoints = 0;
-		for(;numOfPoints < shapes.size();numOfPoints++){
-			cv::Point *point = &shapes[numOfPoints];
-			center.x += point->x;
-			center.y += point->y;
-		}
-		center.x /= numOfPoints;
-		center.y /= numOfPoints;
-		std::vector<double> values = {(double)center.x, (double)center.y};
-		output << "CenterPoint" << runtimes;
-		runtimes++;
-		contours->PutNumberArray(output.str(), values);
-		cv::line(frame, center, center, cv::Scalar(0xFF, 0x00, 0x00, 0x7F));
+		cv::Rect boundingBox = cv::boundingRect(shapes);
+		//cv::convexHull()
+		height.push_back(0+boundingBox.height);
+		width.push_back(0+boundingBox.width);
+		double x,y;
+		x = boundingBox.x + boundingBox.width / 2;
+		y = boundingBox.y + boundingBox.height / 2;
+		centerX.push_back(x);
+		centerY.push_back(y);
+#ifdef debug
+		const int scale = 5;
+		cv::line(frame, cv::Point((int)x, (int)y), cv::Point((int)x, (int)y), cv::Scalar(0xFF, 0x00, 0x00, 0x7F), scale);
+#endif
 	}
+	contours->PutNumberArray("height", height);
+	contours->PutNumberArray("width", width);
+	contours->PutNumberArray("centerX", centerX);
+	contours->PutNumberArray("centerY", centerY);
+}
+
+void RobotVision::drawArea(cv::Mat &frame, std::vector<shape> &filterContoursOutput){
+	std::vector<double> areas;
+	for(shape shapes : filterContoursOutput){
+		areas.push_back(cv::contourArea(shapes));
+	}
+	contours->PutNumberArray("area", areas);
+#ifdef debug // todo
+
+#endif
 }
 
 int main(){

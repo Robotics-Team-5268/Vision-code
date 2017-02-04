@@ -16,9 +16,13 @@ private:
 
 	static void VisionThread();
 
-	static void drawCenters(cv::Mat &frame, std::vector<shape> &filterContoursOutput);
+	static void drawHWC(cv::Mat &frame, std::vector<shape> &filterContoursOutput); // Height, Width, CenterX/Y
+
+	static void drawArea(cv::Mat &frame, std::vector<shape> &filterContoursOutput);
 
 	static std::shared_ptr<NetworkTable> contours;
+
+
 
 public:
 	static void cameraInit();
