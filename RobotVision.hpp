@@ -2,10 +2,16 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/core/types.hpp>
 #include "opencv2/opencv.hpp"
+#include <iomanip>
 #include "GripPipeline.h"
 
 #include <ntcore.h>
 #include <networktables/NetworkTable.h>
+
+#include <unistd.h>
+#include <sys/stat.h>
+#include <fstream>
+#include <signal.h>
 
 
 typedef std::vector<cv::Point> shape;

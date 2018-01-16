@@ -34,7 +34,7 @@ namespace grip{
 		double hsvThresholdHue[] = {59.89208633093524, 100.13651877133107};
 		double hsvThresholdSaturation[] = {174.28057553956833, 255.0};
 		//double hsvThresholdValue[] = {210, 255.0};
-		double hsvThresholdValue[] = {190, 255.0};
+		double hsvThresholdValue[] = {165, 255.0};
 		log("  Calling hsvThreshold");
 		hsvThreshold(hsvThresholdInput,
 		             hsvThresholdHue,

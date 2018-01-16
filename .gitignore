@@ -226,3 +226,7 @@ gradle-app.setting
 output*
 camTest*
 test*
+
+*.txt
+
+cmake-build-debug/
