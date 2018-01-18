@@ -5,7 +5,8 @@ set(CMAKE_CXX_STANDARD 11)
 
 set(SOURCE_FILES
         GripPipeline.cpp
-        RobotVision.cpp)
+        RobotVision.cpp
+		UDPSender.cpp)
 
 add_executable(Vision_code ${SOURCE_FILES})
 target_link_libraries(Vision_code opencv_world)

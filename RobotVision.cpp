@@ -1,4 +1,5 @@
 #include "RobotVision.hpp"
+#include "UDPSender.h"
 
 #define xres 720
 #define yres 480
@@ -124,6 +125,8 @@ void RobotVision::VisionThread(){
 void RobotVision::cameraInit(){
 //std::thread visionThread(VisionThread);
 	//visionThread.detach();
+	
+	UDPSender test;
 	VisionThread();
 }
 
