@@ -4,6 +4,7 @@
 #include "opencv2/opencv.hpp"
 #include <iomanip>
 #include "GripPipeline.h"
+#include "UDPSender.h"
 
 #include <ntcore.h>
 #include <networktables/NetworkTable.h>
@@ -22,13 +23,17 @@ private:
 
 	static void VisionThread();
 
-	static void drawHWC(cv::Mat &frame, std::vector<shape> &filterContoursOutput); // Height, Width, CenterX/Y
+	//static void drawHWC(cv::Mat &frame, std::vector<shape> &filterContoursOutput); // Height, Width, CenterX/Y
+	//static void drawArea(cv::Mat &frame, std::vector<shape> &filterContoursOutput);
+	static void drawHWCA(cv::Mat &frame, std::vector<shape> &filterContoursOutput); // Height, Width, CenterX/Y, Area
+	
+	static std::vector<double> doubleVectorToIntVector(std::vector<int> in);
 
-	static void drawArea(cv::Mat &frame, std::vector<shape> &filterContoursOutput);
-
+	// Used for network table communications (old way)
 	static std::shared_ptr<NetworkTable> contours;
 
-
+	// Used for UDP communications (new way)
+	static UDPSender *udp;
 
 public:
 	static void cameraInit();

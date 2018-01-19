@@ -15,18 +15,10 @@ UDPSender::UDPSender() {
 	serv.sin_family = AF_INET;
 	serv.sin_port = htons(53000);
 	serv.sin_addr.s_addr = inet_addr(hostname);
-
-	// Testing
-	vector<int> centerX = {562, 73, 147};
-	vector<int> centerY = {412, 2, 90};
-	vector<int> width = {365, 190, 42};
-	vector<int> height = {52, 202, 73};
-	vector<int> area = {1095, 1159, 2006};
-	sendContours(centerX, centerY, width, height, area);
 }
 
 void UDPSender::sendContours(vector<int> centerX, vector<int> centerY, vector<int> width, vector<int> height, vector<int> area) {
-	int numContours = sizeof(area)/sizeof(area[0]);
+	int numContours = area.size();
 	string msg = "";
 	for (int i = 0; i < numContours; i++) {
 		
