@@ -1,22 +1,23 @@
 #include "RobotVision.hpp"
+#include "UDPSender.h"
+#include "GripPipeline.h"
 
-#define xres 720
+#define xres 640 // Should be 640...?
 #define yres 480
 
-//#define hostname "10.7.181.32"
-//#define hostname "10.0.0.99"
-#define hostname "roboRIO-5268-FRC.local"
-//#define hostname "localhost"
+// Exposure defined in cameraInit
+// From 5 to 20,000 (although it seems to max out long before that)
 
 #define pidPath "/tmp/Vision-Code.pid"
 
-//#define debug
+#define debug
+//#define saveImages
 
 #ifdef debug
 //#define logToFile
 #define displayVideo
 //#define noCam
-//#define saveImages
+#define saveImages
 //#define logContours
 #endif
 
@@ -33,7 +34,6 @@ std::ofstream logFile("vision.log");
 #endif
 
 grip::GripPipeline *RobotVision::cam = nullptr;
-std::shared_ptr<NetworkTable> RobotVision::contours = nullptr;
 UDPSender *RobotVision::udp = nullptr; // It won't find the variable from the header file otherwise for some reason
 
 #ifdef debug
@@ -46,14 +46,9 @@ void RobotVision::VisionThread(){
 	cv::VideoCapture cap;
 	cap.set(cv::CAP_PROP_FRAME_WIDTH, xres);
 	cap.set(cv::CAP_PROP_FRAME_HEIGHT, yres);
-	cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 0);
-	cap.set(cv::CAP_PROP_EXPOSURE, -8.0);
+	cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 0); // This does not work
+	cap.set(cv::CAP_PROP_EXPOSURE, -8.0); // This does not work
 #endif
-	NetworkTable::SetClientMode();
-	NetworkTable::SetIPAddress(hostname);
-	NetworkTable::Initialize();
-	NetworkTable::GlobalDeleteAll();
-	contours = NetworkTable::GetTable("roboRIO-5268-frc.local");
 	udp = new UDPSender();
 
 #ifndef noCam
@@ -66,11 +61,14 @@ void RobotVision::VisionThread(){
 #endif
 
 	std::vector<shape> *filterContoursOutput;
+	std::vector<grip::Line> *filterLinesOutput;
 #ifdef saveImages
 	long camCount = 0;
 #endif
 	while(true) {
 #ifndef noCam
+		//int frameCount = cap.get(CV_CAP_PROP_FRAME_COUNT); Not supported with v4l2 or our camera
+		//cap.set(CV_CAP_PROP_POS_FRAMES, frameCount - 1); Not supported with v4l2 or our camera
 		cap >> *frame;
 #ifdef debug
 		frame->copyTo(*orig);
@@ -82,11 +80,12 @@ void RobotVision::VisionThread(){
 #else
 		frame = &frameData;
 #endif
-		cam->process(*frame);
-		filterContoursOutput = cam->getfilterContoursOutput();
+		cam->Process(*frame);
+		filterContoursOutput = cam->GetFilterContoursOutput();
+		filterLinesOutput = cam->GetFilterLinesOutput();
 #ifdef saveImages
 #ifdef saveOnlyOnContours
-		if(!filterContoursOutput->size()){
+		if(!filterContoursOutput->size() || !getFilterLinesOutput->size()){
 			continue;
 		}
 #endif
@@ -95,16 +94,14 @@ void RobotVision::VisionThread(){
 		overlayStream << "../output/overlay_" << std::setfill('0') << std::setw(padAmounts) << camCount << ".png";
 		imwrite(outputStream.str(), *frame);
 #endif
-		//drawArea(*frame, *filterContoursOutput);
-		//drawHWC(*frame, *filterContoursOutput);
-		drawHWCA(*frame, *filterContoursOutput);
+		drawHWCA(*frame, *filterContoursOutput, *filterLinesOutput);
 #ifdef debug
-		cv::polylines(*frame, *cam->getfindContoursOutput(), true, cv::Scalar(0xFF, 0x00, 0x00, 0x7F));
+		cv::polylines(*frame, *cam->GetFindContoursOutput(), true, cv::Scalar(0xFF, 0x00, 0x00, 0x7F));
 		cv::polylines(*frame, *filterContoursOutput, true, cv::Scalar(0x00, 0x00, 0xFF, 0x7F));
 #endif
 #ifdef debug
 		std::stringstream contours;
-		contours << "findContours found: " << cam->getfindContoursOutput()->size() << " Contours found: "
+		contours << "findContours num: " << cam->GetFindContoursOutput()->size() << " filterContours num: "
 		         << filterContoursOutput->size();
 		cv::putText(*frame, contours.str(), cv::Point(0,30),
 		            cv::HersheyFonts::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(0x00, 0xFF, 0x00));
@@ -127,21 +124,27 @@ void RobotVision::VisionThread(){
 
 // Effectively the constructor
 void RobotVision::cameraInit(){
-//std::thread visionThread(VisionThread);
-	//visionThread.detach();
+	// Set up camera exposure
+	system("v4l2-ctl -d /dev/video0 -c exposure_auto=1");
+	system("v4l2-ctl -d /dev/video0 -c exposure_absolute=20");
 	
+	//std::thread visionThread(VisionThread);
+	//visionThread.detach();
 	VisionThread();
 }
 
-void RobotVision::drawHWCA(cv::Mat &frame, std::vector<shape> &filterContoursOutput){
+void RobotVision::drawHWCA(cv::Mat &frame, std::vector<shape> &filterContoursOutput, std::vector<grip::Line> &filterLinesOutput){
 	std::vector<int> height;
 	std::vector<int> width;
 	std::vector<int> centerX;
 	std::vector<int> centerY;
-	std::vector<int> area;
+	std::vector<int> x1;
+	std::vector<int> y1;
+	std::vector<int> x2;
+	std::vector<int> y2;
+	std::vector<int> angle;
 	
 	for(shape shapes : filterContoursOutput){
-		area.push_back(cv::contourArea(shapes));
 		cv::Rect boundingBox = cv::boundingRect(shapes);
 		//cv::convexHull()
 		height.push_back(0 + boundingBox.height);
@@ -161,48 +164,19 @@ void RobotVision::drawHWCA(cv::Mat &frame, std::vector<shape> &filterContoursOut
 		         scale);
 #endif
 	}
+	for (grip::Line lines : filterLinesOutput) {
+		x1.push_back((int)lines.x1);
+		y1.push_back((int)lines.y1);
+		x2.push_back((int)lines.x2);
+		y2.push_back((int)lines.y2);
+		angle.push_back((int) lines.angle());
+	}
 	
-	// Network table code - remove later
-	std::vector<double> height_d = doubleVectorToIntVector(height);
-	contours->PutNumberArray("height", height_d);
-	std::vector<double> width_d = doubleVectorToIntVector(width);
-	contours->PutNumberArray("width", width_d);
-	std::vector<double> centerX_d = doubleVectorToIntVector(centerX);
-	contours->PutNumberArray("centerX", centerX_d);
-	std::vector<double> centerY_d = doubleVectorToIntVector(centerY);
-	contours->PutNumberArray("centerY", centerY_d);
-	std::vector<double> area_d = doubleVectorToIntVector(area);
-	contours->PutNumberArray("area", area_d);
-	
-	udp->sendContours(centerX, centerY, width, height, area);
-	
-	// Test data
-	/*std::vector<int> centerX_test = {562, 73, 147};
-	std::vector<int> centerY_test = {412, 2, 90};
-	std::vector<int> width_test = {365, 190, 42};
-	std::vector<int> height_test = {52, 202, 73};
-	std::vector<int> area_test = {1095, 1159, 2006};
-	udp->sendContours(centerX_test, centerY_test, width_test, height_test, area_test);*/
-	
-	/*std::vector<int> centerX_test;
-	std::vector<int> centerY_test;
-	std::vector<int> width_test;
-	std::vector<int> height_test;
-	std::vector<int> area_test;
-	udp->sendContours(centerX_test, centerY_test, width_test, height_test, area_test);*/
+	udp->sendContours(centerX, centerY, width, height, x1, y1, x2, y2, angle);
 	
 #ifdef debug
 	cv::drawContours(frame, filterContoursOutput, -1, cv::Scalar(0xFF, 0x00, 0x00, 0xFF/4), CV_FILLED);
 #endif
-}
-
-// Temporary, to support network tables (which need doubles) alongside int-based UDP protocol
-std::vector<double> RobotVision::doubleVectorToIntVector(std::vector<int> in) {
-	std::vector<double> out;
-	for (int value : in) {
-		out.push_back( (double) value );
-	}
-	return out;
 }
 
 inline bool exists(const std::string& name) {

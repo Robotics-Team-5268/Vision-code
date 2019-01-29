@@ -7,7 +7,6 @@
 #include "UDPSender.h"
 
 #include <ntcore.h>
-#include <networktables/NetworkTable.h>
 
 #include <unistd.h>
 #include <sys/stat.h>
@@ -25,14 +24,11 @@ private:
 
 	//static void drawHWC(cv::Mat &frame, std::vector<shape> &filterContoursOutput); // Height, Width, CenterX/Y
 	//static void drawArea(cv::Mat &frame, std::vector<shape> &filterContoursOutput);
-	static void drawHWCA(cv::Mat &frame, std::vector<shape> &filterContoursOutput); // Height, Width, CenterX/Y, Area
+	static void drawHWCA(cv::Mat &frame, std::vector<shape> &filterContoursOutput,std::vector<grip::Line> &filterLinesOutput); // Height, Width, CenterX/Y, Area
 	
 	static std::vector<double> doubleVectorToIntVector(std::vector<int> in);
 
-	// Used for network table communications (old way)
-	static std::shared_ptr<NetworkTable> contours;
-
-	// Used for UDP communications (new way)
+	// Used for UDP communications (new way of sending contours that took the place of NetworkTables)
 	static UDPSender *udp;
 
 public:
