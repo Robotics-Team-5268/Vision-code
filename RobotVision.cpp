@@ -2,8 +2,8 @@
 #include "UDPSender.h"
 #include "GripPipeline.h"
 
-#define xres 640 // Should be 640...?
-#define yres 480
+#define xres 320 // Should be 640...?
+#define yres 240
 
 // Exposure defined in cameraInit
 // From 5 to 20,000 (although it seems to max out long before that)
@@ -94,7 +94,7 @@ void RobotVision::VisionThread(){
 		overlayStream << "../output/overlay_" << std::setfill('0') << std::setw(padAmounts) << camCount << ".png";
 		imwrite(outputStream.str(), *frame);
 #endif
-		drawHWCA(*frame, *filterContoursOutput, *filterLinesOutput);
+		//drawHWCA(*frame, *filterContoursOutput, *filterLinesOutput);
 #ifdef debug
 		cv::polylines(*frame, *cam->GetFindContoursOutput(), true, cv::Scalar(0xFF, 0x00, 0x00, 0x7F));
 		cv::polylines(*frame, *filterContoursOutput, true, cv::Scalar(0x00, 0x00, 0xFF, 0x7F));
@@ -133,7 +133,7 @@ void RobotVision::cameraInit(){
 	VisionThread();
 }
 
-void RobotVision::drawHWCA(cv::Mat &frame, std::vector<shape> &filterContoursOutput, std::vector<grip::Line> &filterLinesOutput){
+void RobotVision::drawHWCA(cv::Mat &frame, std::vector<shape> &filterContoursOutput,std::vector<grip::Line> &filterLinesOutput, UDPSender *udpsender) { 
 	std::vector<int> height;
 	std::vector<int> width;
 	std::vector<int> centerX;
@@ -172,7 +172,7 @@ void RobotVision::drawHWCA(cv::Mat &frame, std::vector<shape> &filterContoursOut
 		angle.push_back((int) lines.angle());
 	}
 	
-	udp->sendContours(centerX, centerY, width, height, x1, y1, x2, y2, angle);
+	udpsender->sendContours(centerX, centerY, width, height, x1, y1, x2, y2, angle);
 	
 #ifdef debug
 	cv::drawContours(frame, filterContoursOutput, -1, cv::Scalar(0xFF, 0x00, 0x00, 0xFF/4), CV_FILLED);
@@ -184,7 +184,7 @@ inline bool exists(const std::string& name) {
 	return stat(name.c_str(), &buffer) == 0;
 }
 
-int main(){
+int old_main(){
 	pid_t pid;
 	if(exists(pidPath)){
 		log << "PID file exists, checking if process exists" << std::endl;

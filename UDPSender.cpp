@@ -2,12 +2,12 @@
 // IMPORTANT: Must compile with C++11 support for to_string to work!
 
 //#define hostname "roboRIO-5268-FRC.frc-robot.local"
-#define hostname "roboRIO-5268-FRC.local"
-//#define hostname "localhost"
+//#define hostname "roboRIO-5268-FRC.local"
+#define hostname "localhost"
 //#define hostname "biomechfalcons-HP-G60-Notebook-PC"
 
 #define port 5805
-//#define debugToStdOut
+#define debugToStdOut
 
 #ifdef debugToStdOut
 #include <iostream>

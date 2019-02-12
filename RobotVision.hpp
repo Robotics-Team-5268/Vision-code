@@ -24,8 +24,6 @@ private:
 
 	//static void drawHWC(cv::Mat &frame, std::vector<shape> &filterContoursOutput); // Height, Width, CenterX/Y
 	//static void drawArea(cv::Mat &frame, std::vector<shape> &filterContoursOutput);
-	static void drawHWCA(cv::Mat &frame, std::vector<shape> &filterContoursOutput,std::vector<grip::Line> &filterLinesOutput); // Height, Width, CenterX/Y, Area
-	
 	static std::vector<double> doubleVectorToIntVector(std::vector<int> in);
 
 	// Used for UDP communications (new way of sending contours that took the place of NetworkTables)
@@ -33,4 +31,6 @@ private:
 
 public:
 	static void cameraInit();
+	static void drawHWCA(cv::Mat &frame, std::vector<shape> &filterContoursOutput,std::vector<grip::Line> &filterLinesOutput, UDPSender *udpsender); // Height, Width, CenterX/Y, Area
+	
 };

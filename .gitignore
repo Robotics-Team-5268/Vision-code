@@ -25,6 +25,8 @@
 *.out
 *.app
 RobotVision
+multiCameraServerExample
+GripPipeline
 
 .vs/
 *.def
