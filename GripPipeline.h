@@ -17,13 +17,6 @@
 namespace grip {
 
 /**
-* A representation of the different types of blurs that can be used.
-*
-*/
-enum BlurType {
-	BOX, GAUSSIAN, MEDIAN, BILATERAL
-};
-/**
 * Contains details of a line.
 *
 */
@@ -71,13 +64,11 @@ class Line {
 */
 class GripPipeline : public frc::VisionPipeline {
 	private:
-		cv::Mat blurOutput;
 		cv::Mat hsvThresholdOutput;
 		std::vector<std::vector<cv::Point> > findContoursOutput;
 		std::vector<std::vector<cv::Point> > filterContoursOutput;
 		std::vector<Line> findLinesOutput;
 		std::vector<Line> filterLinesOutput;
-		void blur(cv::Mat &, BlurType &, double , cv::Mat &);
 		void hsvThreshold(cv::Mat &, double [], double [], double [], cv::Mat &);
 		void findContours(cv::Mat &, bool , std::vector<std::vector<cv::Point> > &);
 		void filterContours(std::vector<std::vector<cv::Point> > &, double , double , double , double , double , double , double [], double , double , double , double , std::vector<std::vector<cv::Point> > &);
@@ -87,7 +78,6 @@ class GripPipeline : public frc::VisionPipeline {
 	public:
 		GripPipeline();
 		void Process(cv::Mat& source0) override;
-		cv::Mat* GetBlurOutput();
 		cv::Mat* GetHsvThresholdOutput();
 		std::vector<std::vector<cv::Point> >* GetFindContoursOutput();
 		std::vector<std::vector<cv::Point> >* GetFilterContoursOutput();

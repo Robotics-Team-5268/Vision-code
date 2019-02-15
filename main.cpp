@@ -204,6 +204,7 @@ class MyPipeline : public grip::GripPipeline {
   void Process(cv::Mat& mat) override {
     std::cout << "rows=" << mat.rows << "cols=" << mat.cols << std::endl;
     grip::GripPipeline::Process( mat );
+    //imwrite("test.png", mat);
     std::vector<std::vector<cv::Point> >* filtercontours = GetFilterContoursOutput();
     std::vector<grip::Line> *filterlines = GetFilterLinesOutput();
     RobotVision::drawHWCA( mat, *filtercontours, *filterlines, udp );
