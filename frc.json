@@ -131,7 +131,8 @@
             "width": 320
         },
         {
-            "brightness": 50,
+            "brightness": 5,
+            "exposure": "auto",
             "fps": 30,
             "height": 240,
             "name": "Microsoft Lifecam",
@@ -151,28 +152,44 @@
                     "value": 50
                 },
                 {
-                    "name": "red_balance",
-                    "value": 1000
-                },
-                {
-                    "name": "blue_balance",
-                    "value": 1000
-                },
-                {
-                    "name": "horizontal_flip",
-                    "value": false
-                },
-                {
-                    "name": "vertical_flip",
-                    "value": false
-                },
-                {
                     "name": "power_line_frequency",
-                    "value": 1
+                    "value": 2
                 },
                 {
                     "name": "sharpness",
                     "value": 50
+                },
+                {
+                    "name": "backlight_compensation",
+                    "value": 0
+                },
+                {
+                    "name": "pan_absolute",
+                    "value": 0
+                },
+                {
+                    "name": "tilt_absolute",
+                    "value": 0
+                },
+                {
+                    "name": "zoom_absolute",
+                    "value": 0
+                },
+                {
+                    "name": "red_balance",
+                    "value": 0
+                },
+                {
+                    "name": "blue_balance",
+                    "value": 0
+                },
+                {
+                    "name": "horizontal_flip",
+                    "value": 0
+                },
+                {
+                    "name": "vertical_flip",
+                    "value": 0
                 },
                 {
                     "name": "color_effects",
@@ -184,7 +201,7 @@
                 },
                 {
                     "name": "color_effects_cbcr",
-                    "value": 32896
+                    "value": 0
                 },
                 {
                     "name": "video_bitrate_mode",
@@ -192,23 +209,23 @@
                 },
                 {
                     "name": "video_bitrate",
-                    "value": 10000000
+                    "value": 0
                 },
                 {
                     "name": "repeat_sequence_header",
-                    "value": false
+                    "value": 0
                 },
                 {
                     "name": "h264_i_frame_period",
-                    "value": 60
+                    "value": 0
                 },
                 {
                     "name": "h264_level",
-                    "value": 11
+                    "value": 0
                 },
                 {
                     "name": "h264_profile",
-                    "value": 4
+                    "value": 0
                 },
                 {
                     "name": "auto_exposure",
@@ -216,23 +233,23 @@
                 },
                 {
                     "name": "exposure_time_absolute",
-                    "value": 1000
+                    "value": 0
                 },
                 {
                     "name": "exposure_dynamic_framerate",
-                    "value": false
+                    "value": 0
                 },
                 {
                     "name": "auto_exposure_bias",
-                    "value": 12
+                    "value": 0
                 },
                 {
                     "name": "white_balance_auto_preset",
-                    "value": 1
+                    "value": 0
                 },
                 {
                     "name": "image_stabilization",
-                    "value": false
+                    "value": 0
                 },
                 {
                     "name": "iso_sensitivity",
@@ -240,7 +257,7 @@
                 },
                 {
                     "name": "iso_sensitivity_auto",
-                    "value": 1
+                    "value": 0
                 },
                 {
                     "name": "exposure_metering_mode",
@@ -252,12 +269,13 @@
                 },
                 {
                     "name": "compression_quality",
-                    "value": 30
+                    "value": 0
                 }
             ],
             "stream": {
                 "properties": []
             },
+            "white balance": "auto",
             "width": 320
         }
     ],
