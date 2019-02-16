@@ -18,19 +18,9 @@ typedef std::vector<cv::Point> shape;
 
 class RobotVision{
 private:
-	static grip::GripPipeline *cam;
-
-	static void VisionThread();
-
-	//static void drawHWC(cv::Mat &frame, std::vector<shape> &filterContoursOutput); // Height, Width, CenterX/Y
-	//static void drawArea(cv::Mat &frame, std::vector<shape> &filterContoursOutput);
 	static std::vector<double> doubleVectorToIntVector(std::vector<int> in);
 
-	// Used for UDP communications (new way of sending contours that took the place of NetworkTables)
-	static UDPSender *udp;
-
 public:
-	static void cameraInit();
 	static void drawHWCA(cv::Mat &frame, std::vector<shape> &filterContoursOutput,std::vector<grip::Line> &filterLinesOutput, UDPSender *udpsender); // Height, Width, CenterX/Y, Area
 	
 };

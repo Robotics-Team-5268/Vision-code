@@ -23,6 +23,9 @@
 #include "UDPSender.h"
 #include "RobotVision.hpp"
 
+//#define saveImages
+#define noCam
+
 /*
    JSON format:
    {
@@ -202,12 +205,27 @@ class MyPipeline : public grip::GripPipeline {
   }
 
   void Process(cv::Mat& mat) override {
-    std::cout << "rows=" << mat.rows << "cols=" << mat.cols << std::endl;
+    std::cout << "rows=" << mat.rows << " cols=" << mat.cols << std::endl;
+
+#ifdef noCam
+    cv::Mat frameData = cv::imread("input.png");
+    grip::GripPipeline::Process( frameData );
+#else
     grip::GripPipeline::Process( mat );
-    //imwrite("test.png", mat);
+#endif
+
+#ifdef saveImages
+    imwrite("test.png", mat);
+#endif
+
     std::vector<std::vector<cv::Point> >* filtercontours = GetFilterContoursOutput();
     std::vector<grip::Line> *filterlines = GetFilterLinesOutput();
+       
+#ifdef noCam
+    RobotVision::drawHWCA( frameData, *filtercontours, *filterlines, udp );
+#else
     RobotVision::drawHWCA( mat, *filtercontours, *filterlines, udp );
+#endif
   }
 };
 }  // namespace
