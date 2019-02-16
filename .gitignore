@@ -228,6 +228,4 @@ output*
 camTest*
 test*
 
-*.txt
-
 cmake-build-debug/

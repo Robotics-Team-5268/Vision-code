@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <string>
 #include <stdlib.h>
+#include "Contour.h"
 
 class UDPSender {
 
@@ -18,6 +19,5 @@ private:
 	
 public:
 	UDPSender();
-	void sendContours(std::vector<int> centerX, std::vector<int> centerY, std::vector<int> width, std::vector<int> height, 
-		std::vector<int> x1, std::vector<int> y1, std::vector<int> x2, std::vector<int> y2, std::vector<int> angle);
+	void sendContours( const std::vector<Contour>& aContours );
 };

@@ -3,6 +3,7 @@
 #include <opencv2/core/types.hpp>
 #include "opencv2/opencv.hpp"
 #include <iomanip>
+#include <vector>
 #include "GripPipeline.h"
 #include "UDPSender.h"
 

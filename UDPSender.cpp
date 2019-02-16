@@ -13,6 +13,7 @@
 #include <iostream>
 #endif
 
+#include "Contour.h"
 #include "UDPSender.h"
 using namespace std;
 
@@ -28,21 +29,17 @@ UDPSender::UDPSender() {
 	serv.sin_addr.s_addr = inet_addr(ipaddress); // "10.52.68.71"
 }
 
-void UDPSender::sendContours(std::vector<int> centerX, std::vector<int> centerY, std::vector<int> width, std::vector<int> height, 
-	std::vector<int> x1, std::vector<int> y1, std::vector<int> x2, std::vector<int> y2, std::vector<int> angle) {
-	int numContours = centerX.size();
+void UDPSender::sendContours( const std::vector<Contour>& aContours )
+{
+	int numContours = aContours.size();
 	string msg = "";
 	for (int i = 0; i < numContours; i++) {
 		
-		msg  += to_string(centerX[i]) + "," 
-		+ to_string(centerY[i]) + "," 
-		+ to_string(width[i]) + "," 
-		+ to_string(height[i]) + ","
-		+ to_string(x1[i]) + ","
-		+ to_string(y1[i]) + ","
-		+ to_string(x2[i]) + ","
-		+ to_string(y2[i]) + ","
-		+ to_string(angle[i]);
+		msg  += to_string(aContours[i].mCenterX ) + "," 
+		+ to_string(aContours[i].mCenterY) + "," 
+		+ to_string(aContours[i].mBoundingBox.width) + "," 
+		+ to_string(aContours[i].mBoundingBox.height) + ","
+		+ to_string(aContours[i].mAngle);
 		if (i < numContours - 1) { // Not the last contour
 			msg += ";";
 		}
