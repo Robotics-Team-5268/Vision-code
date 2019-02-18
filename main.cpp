@@ -23,8 +23,7 @@
 #include "UDPSender.h"
 #include "RobotVision.hpp"
 
-//#define saveImages
-#define noCam
+#define saveImages
 
 /*
    JSON format:
@@ -205,27 +204,35 @@ class MyPipeline : public grip::GripPipeline {
   }
 
   void Process(cv::Mat& mat) override {
-    std::cout << "rows=" << mat.rows << " cols=" << mat.cols << std::endl;
-
-#ifdef noCam
     cv::Mat frameData = cv::imread("input.png");
-    grip::GripPipeline::Process( frameData );
-#else
-    grip::GripPipeline::Process( mat );
-#endif
+    if( frameData.data )
+    {
+        grip::GripPipeline::Process( frameData );
+    }
+    else
+    {
+        grip::GripPipeline::Process( mat );
+    }
 
 #ifdef saveImages
-    imwrite("test.png", mat);
+    static int output_count = 0;
+    std::stringstream outputStream;
+    outputStream << "/home/pi/output/" << std::setfill('0') << std::setw(4) << output_count << ".png";
+    imwrite(outputStream.str(), mat);
+    output_count++;
 #endif
 
     std::vector<std::vector<cv::Point> >* filtercontours = GetFilterContoursOutput();
     std::vector<grip::Line> *filterlines = GetFilterLinesOutput();
        
-#ifdef noCam
-    RobotVision::drawHWCA( frameData, *filtercontours, *filterlines, udp );
-#else
-    RobotVision::drawHWCA( mat, *filtercontours, *filterlines, udp );
-#endif
+    if( frameData.data )
+    {
+        RobotVision::drawHWCA( frameData, *filtercontours, *filterlines, udp );
+    }
+    else
+    {
+        RobotVision::drawHWCA( mat, *filtercontours, *filterlines, udp );
+    }
   }
 };
 }  // namespace
@@ -258,11 +265,6 @@ int main(int argc, char* argv[]) {
                                            [&](MyPipeline &pipeline) {
         // do something with pipeline results
       });
-      /* something like this for GRIP:
-      frc::VisionRunner<grip::GripPipeline> runner(cameras[0], new grip::GripPipeline(),
-                                           [&](grip::GripPipeline& pipeline) {
-      });
-      */
 
       runner.RunForever();
     }).detach();

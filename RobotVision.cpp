@@ -1,9 +1,9 @@
-#include "RobotVision.hpp"
+#include <vector>
 
+#include "RobotVision.hpp"
 #include "Contour.h"
 #include "GripPipeline.h"
 #include "UDPSender.h"
-#include <vector>
 
 static void calculateContourAngle( Contour& aContour, std::vector<grip::Line>& filterLinesOutput );
 
@@ -35,15 +35,15 @@ static void calculateContourAngle
 
 	// Generate a slightly larger bounding box to incorporate lines on the edge
 	cv::Rect inflatedRect( aContour.mBoundingBox );
-	cv::Size inflationSize( 10, 10 );
-	cv::Point offset( 5, 5 );
+	cv::Size inflationSize( 6, 10 );
+	cv::Point offset( 3, 5 );
 	inflatedRect += inflationSize;
 	inflatedRect -= offset;
-	std::cout << "bounding box ";
-	std::cout << aContour.mBoundingBox.x << "-->" << inflatedRect.x << " " ;
-	std::cout << aContour.mBoundingBox.y << "-->" << inflatedRect.y << " ";
-	std::cout << aContour.mBoundingBox.width << "-->" << inflatedRect.width << " ";
-	std::cout << aContour.mBoundingBox.height << "-->" << inflatedRect.height << std::endl;
+	//std::cout << "bounding box ";
+	//std::cout << aContour.mBoundingBox.x << "-->" << inflatedRect.x << " " ;
+	//std::cout << aContour.mBoundingBox.y << "-->" << inflatedRect.y << " ";
+	//std::cout << aContour.mBoundingBox.width << "-->" << inflatedRect.width << " ";
+	//std::cout << aContour.mBoundingBox.height << "-->" << inflatedRect.height << std::endl;
 
 	for( const grip::Line line : filterLinesOutput )
 	{
@@ -51,18 +51,6 @@ static void calculateContourAngle
 			inflatedRect.contains( cv::Point( line.x2, line.y2 ) ) )
 		{
 			contourLines.push_back( line );
-		}
-		else
-		{
-			std::cout << "!!!" << "bx=" << inflatedRect.x;
-			std::cout << "by=" << inflatedRect.y;
-			std::cout << "bw=" << inflatedRect.width;
-			std::cout << "bh=" << inflatedRect.height;
-			std::cout << "x1=" << line.x1;
-			std::cout << "y1=" << line.y1;
-			std::cout << "x2=" << line.x2;
-			std::cout << "y2=" << line.y2;
-			std::cout << std::endl;
 		}
 	}
 
