@@ -11,6 +11,11 @@ void RobotVision::drawHWCA(cv::Mat &frame, std::vector<shape> &filterContoursOut
 { 
 	std::vector<Contour> contours;
 	
+	if( filterContoursOutput.size() == 0 )
+	{
+		std::cout << "no contours";
+	}
+
 	for(shape shapes : filterContoursOutput)
 	{
 		Contour contour;
@@ -35,8 +40,8 @@ static void calculateContourAngle
 
 	// Generate a slightly larger bounding box to incorporate lines on the edge
 	cv::Rect inflatedRect( aContour.mBoundingBox );
-	cv::Size inflationSize( 6, 10 );
-	cv::Point offset( 3, 5 );
+	cv::Size inflationSize( 10, 20 );
+	cv::Point offset( 5, 10 );
 	inflatedRect += inflationSize;
 	inflatedRect -= offset;
 	//std::cout << "bounding box ";
